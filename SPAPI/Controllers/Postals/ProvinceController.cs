@@ -7,10 +7,10 @@ namespace SPAPI.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class ProductsController : ControllerBase
+    public class ProvinceController : ControllerBase
     {
         private readonly IConfiguration _config;
-        public ProductsController(IConfiguration config)
+        public ProvinceController(IConfiguration config)
         {
             _config = config;
         }
@@ -21,25 +21,21 @@ namespace SPAPI.Controllers
          }*/
         public JsonResult Get()
         {
-            string query = @"select * from dbo.Products";
-
+            string query = @"select * from dbo.Provinces";
+            SqlDataReader Reader;
             DataTable table = new DataTable();
-            string sqlDataSource = _config.GetConnectionString("ShopDB");
+            string sqlDataSource = _config.GetConnectionString("Postals");
             using (SqlConnection connect = new SqlConnection(sqlDataSource))
             {
                 connect.Open();
                 using (SqlCommand command = new SqlCommand(query, connect))
                 {
-                    using(SqlDataAdapter adapter = new SqlDataAdapter())
-                    {
-                        adapter.SelectCommand = command;
-                        adapter.Fill(table);
-                        connect.Close();
-                    }
-                   
+                    Reader = command.ExecuteReader();
+                    table.Load(Reader);
+                    Reader.Close();
+                    connect.Close();
                 }
             }
-            Console.WriteLine("getData");
             return new JsonResult(table);
         }
     }
