@@ -1,46 +1,46 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using System.Data.SqlClient;
+using Newtonsoft.Json.Linq;
+using SPAPI.Models;
 using System.Data;
+using System.Data.SqlClient;
 
-namespace SPAPI.Controllers
+namespace SPAPI.Controllers.Type
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class ProductsController : ControllerBase
+    public class TypeController : ControllerBase
     {
+        string sqlDataSource ="";
         private readonly IConfiguration _config;
-        public ProductsController(IConfiguration config)
+        public TypeController(IConfiguration config)
         {
             _config = config;
+            sqlDataSource = _config.GetConnectionString("ShopDB");
         }
         [HttpGet]
-        /* public string[] test()
-         {
-             return new string[] { "test1","test2","test3","test4","test5" };
-         }*/
-        public JsonResult Get()
+        public JsonResult Type()
         {
-            string query = @"select * from dbo.Products";
 
             DataTable table = new DataTable();
-            string sqlDataSource = _config.GetConnectionString("ShopDB");
             using (SqlConnection connect = new SqlConnection(sqlDataSource))
             {
                 connect.Open();
-                using (SqlCommand command = new SqlCommand(query, connect))
+                string cmd = $"select * from dbo.ProductTypes";
+                using (SqlCommand command = new SqlCommand(cmd, connect))
                 {
-                    using(SqlDataAdapter adapter = new SqlDataAdapter())
+                    using (SqlDataAdapter adapter = new SqlDataAdapter())
                     {
                         adapter.SelectCommand = command;
                         adapter.Fill(table);
                         connect.Close();
                     }
-                   
+
                 }
             }
-            Console.WriteLine("getData");
+          
             return new JsonResult(table);
         }
     }
+
 }
